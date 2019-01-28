@@ -8,12 +8,12 @@
   "license": "GPL-2.0+",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sgomes/lab-assistant.git"
+    "url": "https://github.com/Automattic/lab-assistant.git"
   },
   "bugs": {
-    "url": "https://github.com/sgomes/lab-assistant/issues"
+    "url": "https://github.com/Automattic/lab-assistant/issues"
   },
-  "homepage": "https://github.com/sgomes/lab-assistant",
+  "homepage": "https://github.com/Automattic/lab-assistant",
   "dependencies": {
     "cli-progress": "^2.1.1",
     "puppeteer": "^1.11.0",
