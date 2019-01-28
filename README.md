@@ -15,10 +15,16 @@ Impress your peers with actual numbers!
 ## Usage
 
 ```
-lab-assistant.js <url>
+lab-assistant.js <url> [url2]
 
 Positionals:
-  url  URL to fetch content from
+  url   URL to fetch content from.
+        If `url2` is not specified, this is used for both the new and old
+        versions, with the application pausing in between to allow for the
+        version swap.
+  url2  Second URL to fetch content from.
+        If specified, this refers to the new version, while `url` refers to
+        the old version.
 
 Options:
   --help              Show help                                        [boolean]
