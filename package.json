@@ -1,0 +1,23 @@
+{
+  "name": "lab-assistant",
+  "description": "A Puppeteer-based tool that does the grunt work of taking measurements and figuring out how much of a performance change there is between two different versions of your site.",
+  "version": "0.1.0",
+  "main": "lab-assistant.js",
+  "keywords": ["performance", "measuring", "puppeteer"],
+  "author": "Sérgio Gomes <mail@sgomes.com>",
+  "license": "GPL-2.0+",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sgomes/lab-assistant.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sgomes/lab-assistant/issues"
+  },
+  "homepage": "https://github.com/sgomes/lab-assistant",
+  "dependencies": {
+    "cli-progress": "^2.1.1",
+    "puppeteer": "^1.11.0",
+    "ttest": "^2.0.0",
+    "yargs": "^12.0.5"
+  }
+}
