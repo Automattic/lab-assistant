@@ -14,6 +14,15 @@ Impress your peers with actual numbers!
 
 ## Usage
 
+The easiest way to use `lab-assistant` is with a tool like
+[`npx`](https://www.npmjs.com/package/npx):
+
+```
+npx lab-assistant http://v1.mysite.tld http://v2.mysite.tld
+```
+
+Here's the current full set of options (which you can get with `--help`):
+
 ```
 lab-assistant.js <url> [url2]
 
