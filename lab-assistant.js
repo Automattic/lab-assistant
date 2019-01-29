@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /**
  *  Main file for lab-assistant.
  */
