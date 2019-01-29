@@ -61,7 +61,7 @@ function calculateMean( values ) {
 }
 
 /**
- * Calculates the mean for an array of values.
+ * Calculates the standard deviation for an array of values.
  *
  * @param {Array<Number>} values The array of values to consider.
  * @param {Number} mean The mean for the array of values. Optional.
@@ -144,8 +144,6 @@ function analyseResults( oldSet, newSet ) {
 async function initBrowser() {
 	const browser = await puppeteer.launch( {
     headless: options.headless,
-    userDataDir: '/Users/sgomes/tempprof/',
-    executablePath: '/Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary',
 	} );
 
   return browser;

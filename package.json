@@ -1,7 +1,7 @@
 {
   "name": "lab-assistant",
   "description": "A Puppeteer-based tool that does the grunt work of taking measurements and figuring out how much of a performance change there is between two different versions of your site.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "bin": "./lab-assistant.js",
   "keywords": [
     "performance",
