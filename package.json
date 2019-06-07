@@ -20,8 +20,8 @@
   "homepage": "https://github.com/Automattic/lab-assistant",
   "dependencies": {
     "cli-progress": "^2.1.1",
-    "puppeteer": "^1.11.0",
+    "puppeteer": "^1.17.0",
     "ttest": "^2.0.0",
-    "yargs": "^12.0.5"
+    "yargs": "^13.2.4"
   }
 }

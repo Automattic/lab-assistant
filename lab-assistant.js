@@ -162,7 +162,14 @@ async function initPage( browser ) {
 
 	if ( options.cpu_slowdown ) {
 		await client.send( 'Emulation.setCPUThrottlingRate', { rate: options.cpu_slowdown } );
-	}
+  }
+
+  await client.send('Network.emulateNetworkConditions', {
+    'offline': false,
+    'downloadThroughput': 1.6 * 1024 * 1024 / 8,
+    'uploadThroughput': 768 * 1024 / 8,
+    'latency': 150
+  })
 
 	page.setViewport( {
 		width: 1920,
