@@ -36,26 +36,36 @@ Positionals:
         the old version.
 
 Options:
-  --help              Show help                                        [boolean]
-  --verbose, -v       Output more details.            [boolean] [default: false]
-  --headless          Whether to use a headless browser.
+      --help          Show help                                        [boolean]
+  -v, --verbose       Output more details.            [boolean] [default: false]
+      --headless      Whether to use a headless browser.
                                                        [boolean] [default: true]
-  --repeat, -r        The number of measurements to take for each version.
+  -l, --lighthouse    Whether to run the tests through Lighthouse.
+                      Measuring through Lighthouse is significantly slower, and
+                      the results
+                      aren't comparable to direct measuring.
+                                                      [boolean] [default: false]
+  -r, --repeat        The number of measurements to take for each version.
                                                           [number] [default: 10]
-  --throwaway, -t     The number of throwaway visits to perform before any
+  -t, --throwaway     The number of throwaway visits to perform before any
                       actual measurements.
                       Keeping it at 1 or increasing the value can help with
                       stability.                           [number] [default: 1]
-  --cpu_slowdown, -c  The CPU slowdown throttling to apply (may help achieve
+  -c, --cpu_slowdown  The CPU slowdown throttling to apply (may help achieve
                       more stable results in CPU-heavy pages).          [number]
-  --metric, -m        The metric to consider.
-                      Metrics:
+  -m, --metric        The metric to consider.
+                                        Metrics:
                       - ttfb: Time to First Byte
                       - fp: First Paint
                       - fcp: First Contentful Paint
                       - dcl: Time to DOMContentLoad event end
                       - load: Time to Load event end
-        [string] [choices: "ttfb", "fp", "fcp", "dcl", "load"] [default: "load"]
+                      - lcp: Largest Contentful Paint
+                      - cls: Cumulative Layout Shift
+                      - tti: Time To Interactive (Lighthouse only)
+                      - tbt: Total Blocking Time (Lighthouse only)
+     [string] [choices: "ttfb", "fp", "fcp", "dcl", "load", "lcp", "cls", "tti",
+                                                        "tbt"] [default: "load"]
 ```
 
 ## License
