@@ -7,8 +7,7 @@ const puppeteer = require("puppeteer");
 const yargs = require("yargs");
 const readline = require("readline");
 const Progress = require("cli-progress");
-const lhNavigation =
-  require("lighthouse/lighthouse-core/fraggle-rock/api").navigation;
+const lighthouse = require("lighthouse/lighthouse-core/fraggle-rock/api");
 
 const {
   analyseResults,
@@ -128,35 +127,33 @@ async function load(url) {
 async function loadAndMeasureWithLighthouse(url) {
   const browser = await initBrowser();
   const { page } = await initPage(browser);
-
-  let result;
+  const flow = await lighthouse.startFlow(page, { name: "Navigation" });
 
   try {
-    result = await lhNavigation(url, {
-      page,
-      url,
-    });
+    await flow.navigate(url);
   } catch (e) {
     handleFetchError(e);
   }
 
-  const metricsDetails = result.lhr.audits["metrics"].details.items.find(
-    (item) => "interactive" in item
-  );
+  await teardown(browser);
+
+  const result = await flow.createFlowResult();
+
+  const metricsDetails = result.steps[0].lhr.audits[
+    "metrics"
+  ].details.items.find((item) => "interactive" in item);
 
   const metrics = {
-    cls: result.lhr.audits["cumulative-layout-shift"].numericValue,
-    fcp: result.lhr.audits["first-contentful-paint"].numericValue,
-    lcp: result.lhr.audits["largest-contentful-paint"].numericValue,
-    tbt: result.lhr.audits["total-blocking-time"].numericValue,
-    tti: result.lhr.audits["interactive"].numericValue,
-    ttfb: result.lhr.audits["server-response-time"].numericValue,
+    cls: result.steps[0].lhr.audits["cumulative-layout-shift"].numericValue,
+    fcp: result.steps[0].lhr.audits["first-contentful-paint"].numericValue,
+    lcp: result.steps[0].lhr.audits["largest-contentful-paint"].numericValue,
+    tbt: result.steps[0].lhr.audits["total-blocking-time"].numericValue,
+    tti: result.steps[0].lhr.audits["interactive"].numericValue,
+    ttfb: result.steps[0].lhr.audits["server-response-time"].numericValue,
     fp: metricsDetails.observedFirstPaint,
     dcl: metricsDetails.observedDomContentLoaded,
     load: metricsDetails.observedLoad,
   };
-
-  teardown(browser);
 
   return metrics;
 }
@@ -298,7 +295,9 @@ async function performMeasurementSet(timingSet, versionString, url) {
   verbose("Values: ", values);
   console.log(`Mean: ${formatMetric(mean)}`);
   console.log(
-    `Standard deviation: ${formatMetric(calculateStandardDeviation(values, mean))}`
+    `Standard deviation: ${formatMetric(
+      calculateStandardDeviation(values, mean)
+    )}`
   );
   console.log(`Slowest measurement: ${formatMetric(Math.max(...values))}`);
   console.log(`Fastest measurement: ${formatMetric(Math.min(...values))}`);
