@@ -126,7 +126,7 @@ function analyseResults(oldSet, newSet) {
     if (direction === 1) {
       console.log(
         `The new version appears to be ${round(
-          (1 - newMean / oldMean) * 100
+          (oldMean / newMean - 1) * 100
         )}% faster ` +
           `(takes ${round(
             (newMean / oldMean) * 100
@@ -135,7 +135,7 @@ function analyseResults(oldSet, newSet) {
     } else {
       console.log(
         `The new version appears to be ${round(
-          (newMean / oldMean - 1) * 100
+          (oldMean / newMean - 1) * 100
         )}% slower ` +
           `(takes ${round(
             (newMean / oldMean) * 100
