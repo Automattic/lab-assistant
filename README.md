@@ -42,8 +42,7 @@ Options:
                                                        [boolean] [default: true]
   -l, --lighthouse    Whether to run the tests through Lighthouse.
                       Measuring through Lighthouse is significantly slower, and
-                      the results
-                      aren't comparable to direct measuring.
+                      the results aren't comparable to direct measuring.
                                                       [boolean] [default: false]
   -r, --repeat        The number of measurements to take for each version.
                                                           [number] [default: 10]
@@ -54,7 +53,7 @@ Options:
   -c, --cpu_slowdown  The CPU slowdown throttling to apply (may help achieve
                       more stable results in CPU-heavy pages).          [number]
   -m, --metric        The metric to consider.
-                                        Metrics:
+                      Metrics:
                       - ttfb: Time to First Byte
                       - fp: First Paint
                       - fcp: First Contentful Paint
