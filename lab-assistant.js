@@ -341,8 +341,7 @@ async function performMeasurementSet(timingSet, versionString, url) {
       type: "boolean",
       default: false,
       describe: `Whether to run the tests through Lighthouse.
-			Measuring through Lighthouse is significantly slower, and the results
-			aren't comparable to direct measuring.`,
+			Measuring through Lighthouse is significantly slower, and the results aren't comparable to direct measuring.`,
     })
     .option("repeat", {
       alias: "r",
@@ -366,8 +365,8 @@ async function performMeasurementSet(timingSet, versionString, url) {
     .option("metric", {
       alias: "m",
       type: "string",
-      describe: `The metric to consider.
-			Metrics:
+      describe: 'The metric to consider.\n' +
+			`Metrics:
 			- ttfb: Time to First Byte
 			- fp: First Paint
 			- fcp: First Contentful Paint
