@@ -133,14 +133,14 @@ function analyseResults(oldSet, newSet) {
           )}% of the time of the old version).`
       );
     } else {
-      console.log(
-        `The new version appears to be ${round(
-          (oldMean / newMean - 1) * 100
-        )}% slower ` +
-          `(takes ${round(
-            (newMean / oldMean) * 100
-          )}% of the time of the old version).`
-      );
+			console.log(
+				`The new version appears to be ${round(
+					(newMean / oldMean - 1) * 100
+				)}% slower ` +
+					`(takes ${round(
+						(newMean / oldMean) * 100
+					)}% of the time of the old version).`
+			);
     }
   }
 }
