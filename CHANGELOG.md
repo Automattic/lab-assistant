@@ -8,6 +8,7 @@
 - NEW: Add support for Total Blocking Time (Lighthouse only).
 - UPDATE: Update dependencies.
 - BUGFIX: Solve some issues on datasets with zero variability.
+- BUGFIX: Fix % faster / % slower calculations.
 
 0.1.2
 =====
