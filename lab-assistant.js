@@ -7,7 +7,6 @@ const puppeteer = require("puppeteer");
 const yargs = require("yargs");
 const readline = require("readline");
 const Progress = require("cli-progress");
-const lighthouse = require("lighthouse/lighthouse-core/fraggle-rock/api");
 
 const {
   analyseResults,
@@ -71,7 +70,7 @@ async function initPage(browser) {
     latency: 150,
   });
 
-  page.setViewport({
+  await page.setViewport({
     width: 1920,
     height: 1200,
     deviceScaleFactor: 1,
@@ -114,7 +113,7 @@ async function load(url) {
     handleFetchError(e);
   }
 
-  teardown(browser);
+  await teardown(browser);
 }
 
 /**
@@ -127,7 +126,8 @@ async function load(url) {
 async function loadAndMeasureWithLighthouse(url) {
   const browser = await initBrowser();
   const { page } = await initPage(browser);
-  const flow = await lighthouse.startFlow(page, { name: "Navigation" });
+  const { UserFlow } = await import("lighthouse/core/user-flow.js");
+  const flow = new UserFlow(page, { name: "Navigation" });
 
   try {
     await flow.navigate(url);
@@ -203,7 +203,7 @@ async function loadAndMeasureDirectly(url) {
     return window.cumulativeLayoutShiftScore;
   });
 
-  teardown(browser);
+  await teardown(browser);
 
   return {
     ttfb: navigation.responseStart,
@@ -347,7 +347,8 @@ async function performMeasurementSet(timingSet, versionString, url) {
       alias: "r",
       type: "number",
       default: 10,
-      describe: "The number of measurements to take for each version.",
+      describe:
+        "The number of measurements to take for each version. Must be at least 2.",
     })
     .option("throwaway", {
       alias: "t",
@@ -394,6 +395,16 @@ async function performMeasurementSet(timingSet, versionString, url) {
     console.error(
       "Error: metric only measurable via Lighthouse. Use the `-l` option."
     );
+    process.exit(-1);
+  }
+
+  if (!Number.isInteger(options.repeat) || options.repeat < 2) {
+    console.error("Error: repeat must be an integer of at least 2.");
+    process.exit(-1);
+  }
+
+  if (!Number.isInteger(options.throwaway) || options.throwaway < 0) {
+    console.error("Error: throwaway must be a non-negative integer.");
     process.exit(-1);
   }
 
