@@ -14,6 +14,10 @@ Impress your peers with actual numbers!
 
 ## Usage
 
+### Requirements
+
+`lab-assistant` requires Node.js 22.19 or newer.
+
 The easiest way to use `lab-assistant` is with a tool like
 [`npx`](https://www.npmjs.com/package/npx):
 
@@ -44,8 +48,8 @@ Options:
                       Measuring through Lighthouse is significantly slower, and
                       the results aren't comparable to direct measuring.
                                                       [boolean] [default: false]
-  -r, --repeat        The number of measurements to take for each version.
-                                                          [number] [default: 10]
+  -r, --repeat        The number of measurements to take for each version. Must
+                      be at least 2.                      [number] [default: 10]
   -t, --throwaway     The number of throwaway visits to perform before any
                       actual measurements.
                       Keeping it at 1 or increasing the value can help with
@@ -65,6 +69,14 @@ Options:
                       - tbt: Total Blocking Time (Lighthouse only)
      [string] [choices: "ttfb", "fp", "fcp", "dcl", "load", "lcp", "cls", "tti",
                                                         "tbt"] [default: "load"]
+```
+
+## Testing
+
+```
+npm test
+npm run test:cli
+npm audit --audit-level=low
 ```
 
 ## License
