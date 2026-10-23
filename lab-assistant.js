@@ -15,6 +15,7 @@ const {
   calculateStandardDeviation,
   round,
 } = require("./math.js");
+const { DEFAULT_NETWORK_PROFILE, networkProfiles } = require("./network.js");
 const { verbose, setOutputOptions } = require("./output.js");
 const { calculateLCP, calculateCLS } = require("./web-vitals.js");
 
@@ -64,12 +65,9 @@ async function initPage(browser) {
     });
   }
 
-  await client.send("Network.emulateNetworkConditions", {
-    offline: false,
-    downloadThroughput: (1.6 * 1024 * 1024) / 8,
-    uploadThroughput: (768 * 1024) / 8,
-    latency: 150,
-  });
+  await page.emulateNetworkConditions(
+    networkProfiles[options.network ?? DEFAULT_NETWORK_PROFILE]
+  );
 
   await page.setViewport({
     width: 1920,
@@ -364,6 +362,21 @@ async function performMeasurementSet(timingSet, versionString, url) {
       describe:
         "The CPU slowdown throttling to apply (may help achieve more stable results in CPU-heavy pages).",
     })
+    .option("network", {
+      alias: "n",
+      type: "string",
+      describe: "The network throttling to apply (direct measuring only).\n" +
+			`Profiles:
+			- none: No throttling
+			- fast-4g: 8.1 Mbps down, 1.35 Mbps up, 165ms latency (DevTools "Fast 4G")
+			- slow-4g: 1.44 Mbps down, 675 kbps up, 562.5ms latency (DevTools "Slow 4G")
+			- slow-3g: 400 kbps down, 400 kbps up, 2000ms latency (DevTools "3G")
+			- legacy: 1.68 Mbps down, 786 kbps up, 150ms latency`,
+      // Not a real default, so that an explicit choice can be detected and
+      // rejected in Lighthouse mode.
+      defaultDescription: `"${DEFAULT_NETWORK_PROFILE}"`,
+      choices: Object.keys(networkProfiles),
+    })
     .option("metric", {
       alias: "m",
       type: "string",
@@ -395,6 +408,13 @@ async function performMeasurementSet(timingSet, versionString, url) {
   ) {
     console.error(
       "Error: metric only measurable via Lighthouse. Use the `-l` option."
+    );
+    process.exit(-1);
+  }
+
+  if (options.lighthouse && options.network !== undefined) {
+    console.error(
+      "Error: network throttling is only configurable when measuring directly. Lighthouse applies its own."
     );
     process.exit(-1);
   }

@@ -56,6 +56,18 @@ Options:
                       stability.                           [number] [default: 1]
   -c, --cpu_slowdown  The CPU slowdown throttling to apply (may help achieve
                       more stable results in CPU-heavy pages).          [number]
+  -n, --network       The network throttling to apply (direct measuring only).
+                      Profiles:
+                      - none: No throttling
+                      - fast-4g: 8.1 Mbps down, 1.35 Mbps up, 165ms latency
+                      (DevTools "Fast 4G")
+                      - slow-4g: 1.44 Mbps down, 675 kbps up, 562.5ms latency
+                      (DevTools "Slow 4G")
+                      - slow-3g: 400 kbps down, 400 kbps up, 2000ms latency
+                      (DevTools "3G")
+                      - legacy: 1.68 Mbps down, 786 kbps up, 150ms latency
+           [string] [choices: "none", "fast-4g", "slow-4g", "slow-3g", "legacy"]
+                                                             [default: "legacy"]
   -m, --metric        The metric to consider.
                       Metrics:
                       - ttfb: Time to First Byte
