@@ -5,6 +5,7 @@
 
 const puppeteer = require("puppeteer");
 const yargs = require("yargs");
+const { hideBin } = require("yargs/helpers");
 const readline = require("readline");
 const Progress = require("cli-progress");
 
@@ -310,7 +311,7 @@ async function performMeasurementSet(timingSet, versionString, url) {
  * Main method for the tool.
  */
 (async () => {
-  options = yargs
+  options = yargs(hideBin(process.argv))
     .command("$0 <url> [url2]", "", (yargs) =>
       yargs
         .positional("url", {
