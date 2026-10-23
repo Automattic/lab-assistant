@@ -1,11 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
-const { DEFAULT_NETWORK_PROFILE, networkProfiles } = require("../network.js");
-
-test("the default profile exists", () => {
-  assert.ok(DEFAULT_NETWORK_PROFILE in networkProfiles);
-});
+const { networkProfiles } = require("../network.js");
 
 test("the none profile disables throttling", () => {
   assert.equal(networkProfiles.none, null);

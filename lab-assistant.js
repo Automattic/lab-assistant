@@ -15,7 +15,7 @@ const {
   calculateStandardDeviation,
   round,
 } = require("./math.js");
-const { DEFAULT_NETWORK_PROFILE, networkProfiles } = require("./network.js");
+const { networkProfiles } = require("./network.js");
 const { verbose, setOutputOptions } = require("./output.js");
 const { calculateLCP, calculateCLS } = require("./web-vitals.js");
 
@@ -66,7 +66,7 @@ async function initPage(browser) {
   }
 
   await page.emulateNetworkConditions(
-    networkProfiles[options.network ?? DEFAULT_NETWORK_PROFILE]
+    networkProfiles[options.network]
   );
 
   await page.setViewport({
@@ -365,16 +365,15 @@ async function performMeasurementSet(timingSet, versionString, url) {
     .option("network", {
       alias: "n",
       type: "string",
-      describe: "The network throttling to apply (direct measuring only).\n" +
+      describe: "The network throttling to apply.\n" +
+			"Throttling can't be combined with `ttfb` or Lighthouse.\n" +
 			`Profiles:
 			- none: No throttling
 			- fast-4g: 8.1 Mbps down, 1.35 Mbps up, 165ms latency (DevTools "Fast 4G")
 			- slow-4g: 1.44 Mbps down, 675 kbps up, 562.5ms latency (DevTools "Slow 4G")
 			- slow-3g: 400 kbps down, 400 kbps up, 2000ms latency (DevTools "3G")
 			- legacy: 1.68 Mbps down, 786 kbps up, 150ms latency`,
-      // Not a real default, so that an explicit choice can be detected and
-      // rejected in Lighthouse mode.
-      defaultDescription: `"${DEFAULT_NETWORK_PROFILE}"`,
+      default: "none",
       choices: Object.keys(networkProfiles),
     })
     .option("metric", {
@@ -382,7 +381,7 @@ async function performMeasurementSet(timingSet, versionString, url) {
       type: "string",
       describe: 'The metric to consider.\n' +
 			`Metrics:
-			- ttfb: Time to First Byte
+			- ttfb: Time to First Byte (unthrottled network only)
 			- fp: First Paint
 			- fcp: First Contentful Paint
 			- dcl: Time to DOMContentLoad event end
@@ -393,6 +392,25 @@ async function performMeasurementSet(timingSet, versionString, url) {
 			- tbt: Total Blocking Time (Lighthouse only)`,
       default: "load",
       choices: ["ttfb", "fp", "fcp", "dcl", "load", "lcp", "cls", "tti", "tbt"],
+    })
+    .check((argv) => {
+      if (argv.network === "none") {
+        return true;
+      }
+
+      if (argv.lighthouse) {
+        throw new Error(
+          "Network throttling is only available when measuring directly. Lighthouse applies its own."
+        );
+      }
+
+      if (argv.metric === "ttfb") {
+        throw new Error(
+          "The `ttfb` metric can't be combined with network throttling, due to limitations in the Chrome throttling implementation"
+        );
+      }
+
+      return true;
     })
     .version(false).argv;
 
@@ -408,13 +426,6 @@ async function performMeasurementSet(timingSet, versionString, url) {
   ) {
     console.error(
       "Error: metric only measurable via Lighthouse. Use the `-l` option."
-    );
-    process.exit(-1);
-  }
-
-  if (options.lighthouse && options.network !== undefined) {
-    console.error(
-      "Error: network throttling is only configurable when measuring directly. Lighthouse applies its own."
     );
     process.exit(-1);
   }
