@@ -7,7 +7,9 @@ Unreleased
 - NEW: Add automated tests (`npm test`).
 - NEW: Add `--network` option to choose a network throttling profile. Throttling isn't available for the `ttfb` metric or in Lighthouse mode.
 - UPDATE: Network throttling is now off by default. Use `--network legacy` for the previous behaviour.
+- NEW: Add `--wait` and `--wait_extra` options to choose how long to wait before taking measurements, which helps capture late LCP and layout shifts (direct measuring only).
 - BUGFIX: Wait for the viewport to be set and the browser to close between measurements.
+- BUGFIX: Wait for paint timings to be recorded before measuring, so FP, FCP and LCP are no longer missing on pages that load before their first paint.
 
 0.2.0
 =====

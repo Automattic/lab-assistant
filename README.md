@@ -69,6 +69,15 @@ Options:
                       - legacy: 1.68 Mbps down, 786 kbps up, 150ms latency
            [string] [choices: "none", "fast-4g", "slow-4g", "slow-3g", "legacy"]
                                                                [default: "none"]
+  -w, --wait          The point to wait for before taking measurements.
+                      Can't be changed in Lighthouse mode.
+                      Points:
+                      - load: The load event
+                      - network-idle: load, then no network requests for 500ms
+                    [string] [choices: "load", "network-idle"] [default: "load"]
+      --wait_extra    Additional seconds to wait after the `--wait` point (may
+                      help capture late LCP and layout shifts).
+                      Can't be changed in Lighthouse mode. [number] [default: 0]
   -m, --metric        The metric to consider.
                       Metrics:
                       - ttfb: Time to First Byte (unthrottled network only)
