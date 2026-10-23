@@ -14,6 +14,8 @@ test("prints CLI help", () => {
   assert.match(result.stdout, /lab-assistant\.js <url> \[url2\]/);
   assert.match(result.stdout, /--lighthouse/);
   assert.match(result.stdout, /--network/);
+  assert.match(result.stdout, /--wait/);
+  assert.match(result.stdout, /--wait_extra/);
   assert.match(result.stdout, /\[default: "none"\]/);
   assert.match(result.stdout, /--metric/);
 });
@@ -114,5 +116,47 @@ test("accepts no network throttling for ttfb and in Lighthouse mode", () => {
 
     assert.notEqual(result.status, 0);
     assert.match(result.stderr, /repeat must be an integer of at least 2/);
+  }
+});
+
+test("rejects waiting options in Lighthouse mode", () => {
+  for (const waitArgs of [["--wait", "network-idle"], ["--wait_extra", "2"]]) {
+    const result = spawnSync(
+      process.execPath,
+      [
+        cliPath,
+        "--lighthouse",
+        ...waitArgs,
+        "https://example.com",
+        "https://example.com",
+      ],
+      {
+        encoding: "utf8",
+      }
+    );
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /Waiting options are only available when measuring directly/);
+  }
+});
+
+test("rejects negative or non-numeric extra waiting times", () => {
+  for (const value of ["-1", "abc"]) {
+    const result = spawnSync(
+      process.execPath,
+      [
+        cliPath,
+        "--wait_extra",
+        value,
+        "https://example.com",
+        "https://example.com",
+      ],
+      {
+        encoding: "utf8",
+      }
+    );
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /wait_extra must be a non-negative number of seconds/);
   }
 });

@@ -7,6 +7,7 @@ const puppeteer = require("puppeteer");
 const yargs = require("yargs");
 const { hideBin } = require("yargs/helpers");
 const readline = require("readline");
+const { setTimeout: sleep } = require("node:timers/promises");
 const Progress = require("cli-progress");
 
 const {
@@ -20,6 +21,12 @@ const { verbose, setOutputOptions } = require("./output.js");
 const { calculateLCP, calculateCLS } = require("./web-vitals.js");
 
 let options;
+
+// The Puppeteer navigation events to wait for, for each `--wait` point.
+const waitPoints = {
+  load: "load",
+  "network-idle": ["load", "networkidle0"],
+};
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -158,6 +165,30 @@ async function loadAndMeasureWithLighthouse(url) {
 }
 
 /**
+ * Waits for the page to render its next frame, and then for any further frames
+ * needed until paint timings are recorded (up to a limit). This ensures they're
+ * available even when the load event fires before the first paint, since
+ * timings are only recorded once a frame is presented, which can lag behind.
+ *
+ * @param {Page} page A Puppeteer Page object.
+ */
+async function waitForPaintTimings(page) {
+  await page.evaluate(async () => {
+    const deadline = performance.now() + 1000;
+
+    do {
+      await new Promise((resolve) =>
+        requestAnimationFrame(() => setTimeout(resolve))
+      );
+    } while (
+      (performance.getEntriesByType("paint").length < 2 ||
+        !window.largestContentfulPaint) &&
+      performance.now() < deadline
+    );
+  });
+}
+
+/**
  * Loads a page in Puppeteer and takes several measurements during load.
  *
  * @param {String} url The URL to load.
@@ -172,10 +203,13 @@ async function loadAndMeasureDirectly(url) {
   await page.evaluateOnNewDocument(calculateCLS);
 
   try {
-    await page.goto(url);
+    await page.goto(url, { waitUntil: waitPoints[options.wait] });
   } catch (e) {
     handleFetchError(e);
   }
+
+  await sleep(options.wait_extra * 1000);
+  await waitForPaintTimings(page);
 
   const navigation = JSON.parse(
     await page.evaluate(() =>
@@ -376,6 +410,23 @@ async function performMeasurementSet(timingSet, versionString, url) {
       default: "none",
       choices: Object.keys(networkProfiles),
     })
+    .option("wait", {
+      alias: "w",
+      type: "string",
+      describe: "The point to wait for before taking measurements.\n" +
+			"Can't be changed in Lighthouse mode.\n" +
+			`Points:
+			- load: The load event
+			- network-idle: load, then no network requests for 500ms`,
+      default: "load",
+      choices: Object.keys(waitPoints),
+    })
+    .option("wait_extra", {
+      type: "number",
+      describe: `Additional seconds to wait after the \`--wait\` point (may help capture late LCP and layout shifts).
+			Can't be changed in Lighthouse mode.`,
+      default: 0,
+    })
     .option("metric", {
       alias: "m",
       type: "string",
@@ -394,20 +445,26 @@ async function performMeasurementSet(timingSet, versionString, url) {
       choices: ["ttfb", "fp", "fcp", "dcl", "load", "lcp", "cls", "tti", "tbt"],
     })
     .check((argv) => {
-      if (argv.network === "none") {
-        return true;
-      }
-
-      if (argv.lighthouse) {
+      if (argv.lighthouse && argv.network !== "none") {
         throw new Error(
           "Network throttling is only available when measuring directly. Lighthouse applies its own."
         );
       }
 
-      if (argv.metric === "ttfb") {
+      if (argv.metric === "ttfb" && argv.network !== "none") {
         throw new Error(
           "The `ttfb` metric can't be combined with network throttling, due to limitations in the Chrome throttling implementation"
         );
+      }
+
+      if (argv.lighthouse && (argv.wait !== "load" || argv.wait_extra !== 0)) {
+        throw new Error(
+          "Waiting options are only available when measuring directly. Lighthouse has its own waiting logic."
+        );
+      }
+
+      if (!(argv.wait_extra >= 0)) {
+        throw new Error("wait_extra must be a non-negative number of seconds.");
       }
 
       return true;
