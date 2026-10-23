@@ -13,6 +13,7 @@ test("prints CLI help", () => {
   assert.equal(result.status, 0, result.stderr);
   assert.match(result.stdout, /lab-assistant\.js <url> \[url2\]/);
   assert.match(result.stdout, /--lighthouse/);
+  assert.match(result.stdout, /--network/);
   assert.match(result.stdout, /--metric/);
 });
 
@@ -33,4 +34,37 @@ test("rejects repeat values that cannot produce a t-test", () => {
 
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /repeat must be an integer of at least 2/);
+});
+
+test("rejects unknown network profiles", () => {
+  const result = spawnSync(
+    process.execPath,
+    [cliPath, "--network", "5g", "https://example.com", "https://example.com"],
+    {
+      encoding: "utf8",
+    }
+  );
+
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /Argument: network, Given: "5g"/);
+});
+
+test("rejects network profiles in Lighthouse mode", () => {
+  const result = spawnSync(
+    process.execPath,
+    [
+      cliPath,
+      "--lighthouse",
+      "--network",
+      "legacy",
+      "https://example.com",
+      "https://example.com",
+    ],
+    {
+      encoding: "utf8",
+    }
+  );
+
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /network throttling is only configurable/);
 });

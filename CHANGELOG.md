@@ -5,6 +5,7 @@ Unreleased
 - UPDATE: Update dependencies (Puppeteer 25, Lighthouse 13, yargs 18).
 - UPDATE: Validate that `--repeat` is at least 2 and `--throwaway` is non-negative.
 - NEW: Add automated tests (`npm test`).
+- NEW: Add `--network` option to choose a network throttling profile, including no throttling (direct measuring only).
 - BUGFIX: Wait for the viewport to be set and the browser to close between measurements.
 
 0.2.0
