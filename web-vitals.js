@@ -1,7 +1,9 @@
 // Based on code from https://addyosmani.com/blog/puppeteer-recipes/
 
 function calculateLCP() {
-  window.largestContentfulPaint = 0;
+  // Left undefined until an LCP entry is observed, so that a missing LCP isn't
+  // mistaken for a measurement of 0.
+  window.largestContentfulPaint = undefined;
 
   const observer = new PerformanceObserver((entryList) => {
     const entries = entryList.getEntries();

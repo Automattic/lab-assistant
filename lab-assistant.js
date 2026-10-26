@@ -104,6 +104,25 @@ function handleFetchError(e) {
 }
 
 /**
+ * Handles a page load that didn't record the desired metric.
+ *
+ * @param {String} url The URL that was loaded.
+ */
+function handleMissingMetric(url) {
+  console.error("\n");
+  console.error(`Error: the \`${options.metric}\` metric wasn't recorded for ${url}.`);
+  if (!options.lighthouse) {
+    console.error(
+      "The page may not have painted its content in time, or may have no " +
+        "content for this metric. Consider using `--wait network-idle` or " +
+        "`--wait_extra`."
+    );
+  }
+  console.error("\nExiting.");
+  process.exit(-1);
+}
+
+/**
  * Loads a page in Puppeteer, without doing anything with it.
  * Used for throwaway requests that help improve result consistency.
  *
@@ -313,6 +332,9 @@ async function performMeasurementSet(timingSet, versionString, url) {
 
   for (let i = 0; i < options.repeat; i++) {
     const timings = await loadAndMeasure(url);
+    if (!Number.isFinite(calculateMetric(timings, options.metric))) {
+      handleMissingMetric(url);
+    }
     timingSet.push(timings);
     progress.update(i + 1);
   }
@@ -332,8 +354,12 @@ async function performMeasurementSet(timingSet, versionString, url) {
       calculateStandardDeviation(values, mean)
     )}`
   );
-  console.log(`Slowest measurement: ${formatMetric(Math.max(...values))}`);
-  console.log(`Fastest measurement: ${formatMetric(Math.min(...values))}`);
+  const [maxLabel, minLabel] =
+    ["cls", "tbt"].includes(options.metric)
+      ? ["Highest", "Lowest"]
+      : ["Slowest", "Fastest"];
+  console.log(`${maxLabel} measurement: ${formatMetric(Math.max(...values))}`);
+  console.log(`${minLabel} measurement: ${formatMetric(Math.min(...values))}`);
   console.log();
 
   return values;
@@ -521,7 +547,7 @@ async function performMeasurementSet(timingSet, versionString, url) {
 
   console.log();
 
-  analyseResults(oldValues, newValues);
+  analyseResults(oldValues, newValues, options.metric);
 
   process.exit(0);
 })();
