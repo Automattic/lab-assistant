@@ -21,15 +21,38 @@ function calculateLCP() {
   });
 }
 
+// Uses session windows, as defined in https://web.dev/articles/cls: shifts less
+// than 1s apart are grouped into windows of up to 5s, and the score is the
+// largest window total.
 function calculateCLS() {
   window.cumulativeLayoutShiftScore = 0;
 
+  let sessionValue = 0;
+  let sessionStart = 0;
+  let sessionLast = 0;
+
   const observer = new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
-      if (!entry.hadRecentInput) {
-        console.log("New observer entry for cls: " + entry.value);
-        window.cumulativeLayoutShiftScore += entry.value;
+      if (entry.hadRecentInput) {
+        continue;
       }
+
+      if (
+        sessionValue &&
+        entry.startTime - sessionLast < 1000 &&
+        entry.startTime - sessionStart < 5000
+      ) {
+        sessionValue += entry.value;
+      } else {
+        sessionValue = entry.value;
+        sessionStart = entry.startTime;
+      }
+      sessionLast = entry.startTime;
+
+      window.cumulativeLayoutShiftScore = Math.max(
+        window.cumulativeLayoutShiftScore,
+        sessionValue
+      );
     }
   });
 

@@ -14,6 +14,7 @@ Unreleased
 - BUGFIX: Don't exit with a NaN p-value error when every measurement within each version is identical.
 - BUGFIX: Don't report infinite changes when a mean is zero.
 - BUGFIX: Exit with an error when the chosen metric isn't recorded, instead of counting a missing LCP as 0ms.
+- BUGFIX: Calculate CLS with session windows, matching the current definition and Lighthouse, instead of adding up every layout shift (direct measuring only).
 - UPDATE: Report the sample standard deviation rather than the population standard deviation.
 - UPDATE: Report the size of a change as a speedup or slowdown factor instead of "% faster" / "% slower".
 - UPDATE: Describe CLS and TBT changes in terms of layout shift and blocking time, as an absolute difference between means.
