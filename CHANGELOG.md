@@ -10,6 +10,14 @@ Unreleased
 - NEW: Add `--wait` and `--wait_extra` options to choose how long to wait before taking measurements, which helps capture late LCP and layout shifts (direct measuring only).
 - BUGFIX: Wait for the viewport to be set and the browser to close between measurements.
 - BUGFIX: Wait for paint timings to be recorded before measuring, so FP, FCP and LCP are no longer missing on pages that load before their first paint.
+- BUGFIX: Use a two-sided t-test. Choosing a one-sided test from the observed means halved the p-value, so twice as many differences were reported as significant as should have been.
+- BUGFIX: Don't exit with a NaN p-value error when every measurement within each version is identical.
+- BUGFIX: Don't report infinite changes when a mean is zero.
+- BUGFIX: Exit with an error when the chosen metric isn't recorded, instead of counting a missing LCP as 0ms.
+- UPDATE: Report the sample standard deviation rather than the population standard deviation.
+- UPDATE: Report the size of a change as a speedup or slowdown factor instead of "% faster" / "% slower".
+- UPDATE: Describe CLS and TBT changes in terms of layout shift and blocking time, as an absolute difference between means.
+- UPDATE: Minor wording changes for clarity.
 
 0.2.0
 =====
