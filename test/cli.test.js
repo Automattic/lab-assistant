@@ -186,3 +186,43 @@ test("rejects negative or non-numeric extra waiting times", () => {
     assert.match(result.stderr, /wait_extra must be a non-negative number of seconds/);
   }
 });
+
+test("rejects invalid screen values", () => {
+  for (const value of ["phone", "1366", "0x768"]) {
+    const result = spawnSync(
+      process.execPath,
+      [cliPath, "--screen", value, "https://example.com", "https://example.com"],
+      {
+        encoding: "utf8",
+      }
+    );
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /screen must be a screen profile or a WIDTHxHEIGHT size/);
+  }
+});
+
+test("accepts screen profiles and custom sizes", () => {
+  // An invalid repeat value stops the run once options are validated, so that
+  // no browser is launched.
+  for (const value of ["mobile", "1366x768"]) {
+    const result = spawnSync(
+      process.execPath,
+      [
+        cliPath,
+        "--screen",
+        value,
+        "--repeat",
+        "1",
+        "https://example.com",
+        "https://example.com",
+      ],
+      {
+        encoding: "utf8",
+      }
+    );
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /repeat must be an integer of at least 2/);
+  }
+});

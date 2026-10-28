@@ -17,6 +17,7 @@ const {
   round,
 } = require("./math.js");
 const { networkProfiles } = require("./network.js");
+const { parseScreen, getMobileUserAgent } = require("./screens.js");
 const { verbose, setOutputOptions } = require("./output.js");
 const { calculateLCP, calculateCLS } = require("./web-vitals.js");
 
@@ -76,14 +77,15 @@ async function initPage(browser) {
     networkProfiles[options.network]
   );
 
+  const viewport = parseScreen(options.screen);
   await page.setViewport({
-    width: 1920,
-    height: 1200,
-    deviceScaleFactor: 1,
-    isMobile: false,
-    hasTouch: false,
-    isLandscape: true,
+    ...viewport,
+    isLandscape: viewport.width > viewport.height,
   });
+
+  if (viewport.isMobile) {
+    await page.setUserAgent(getMobileUserAgent(await browser.version()));
+  }
 
   await page.setCacheEnabled(false);
 
@@ -147,8 +149,8 @@ async function load(url) {
  *
  * By default, Lighthouse emulates a mobile device and estimates some metrics
  * (FCP, LCP, TBT, TTI) by simulating a throttled load from an unthrottled one.
- * Instead, keep the viewport and user agent set up by Puppeteer, and apply our
- * own throttling for real so that every metric is measured.
+ * Instead, keep the viewport and user agent set up by Puppeteer for `--screen`,
+ * and apply our own throttling for real so that every metric is measured.
  *
  * @returns {Object} The Lighthouse flags.
  */
@@ -165,7 +167,7 @@ function getLighthouseFlags() {
       uploadThroughputKbps: network ? toKbps(network.upload) : 0,
       cpuSlowdownMultiplier: options.cpu_slowdown || 1,
     },
-    formFactor: "desktop",
+    formFactor: parseScreen(options.screen).isMobile ? "mobile" : "desktop",
     screenEmulation: { disabled: true },
     emulatedUserAgent: false,
   };
@@ -469,6 +471,17 @@ async function performMeasurementSet(timingSet, versionString, url) {
       default: "none",
       choices: Object.keys(networkProfiles),
     })
+    .option("screen", {
+      alias: "s",
+      type: "string",
+      describe: "The screen to emulate: a profile, or a custom WIDTHxHEIGHT size.\n" +
+			`Profiles:
+			- desktop: 1350x940 (Lighthouse desktop)
+			- laptop: 1280x800 (DevTools "Laptop with MDPI screen")
+			- laptop-hidpi: 1440x900, 2x pixel density (DevTools "Laptop with HiDPI screen")
+			- mobile: 412x823, 1.75x pixel density, with touch and a mobile user agent (Lighthouse mobile)`,
+      default: "desktop",
+    })
     .option("wait", {
       alias: "w",
       type: "string",
@@ -504,6 +517,12 @@ async function performMeasurementSet(timingSet, versionString, url) {
       choices: ["ttfb", "fp", "fcp", "dcl", "load", "lcp", "cls", "tti", "tbt"],
     })
     .check((argv) => {
+      if (!parseScreen(argv.screen)) {
+        throw new Error(
+          "screen must be a screen profile or a WIDTHxHEIGHT size (e.g. 1366x768)."
+        );
+      }
+
       if (argv.metric === "ttfb" && argv.network !== "none") {
         throw new Error(
           "The `ttfb` metric can't be combined with network throttling, due to limitations in the Chrome throttling implementation"

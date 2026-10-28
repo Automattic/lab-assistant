@@ -69,6 +69,16 @@ Options:
                       - legacy: 1.68 Mbps down, 786 kbps up, 150ms latency
            [string] [choices: "none", "fast-4g", "slow-4g", "slow-3g", "legacy"]
                                                                [default: "none"]
+  -s, --screen        The screen to emulate: a profile, or a custom WIDTHxHEIGHT
+                      size.
+                      Profiles:
+                      - desktop: 1350x940 (Lighthouse desktop)
+                      - laptop: 1280x800 (DevTools "Laptop with MDPI screen")
+                      - laptop-hidpi: 1440x900, 2x pixel density (DevTools
+                      "Laptop with HiDPI screen")
+                      - mobile: 412x823, 1.75x pixel density, with touch and a
+                      mobile user agent (Lighthouse mobile)
+                                                   [string] [default: "desktop"]
   -w, --wait          The point to wait for before taking measurements.
                       Can't be changed in Lighthouse mode.
                       Points:
