@@ -142,6 +142,36 @@ async function load(url) {
 }
 
 /**
+ * Returns the Lighthouse settings for measuring with the same conditions as
+ * direct measuring.
+ *
+ * By default, Lighthouse emulates a mobile device and estimates some metrics
+ * (FCP, LCP, TBT, TTI) by simulating a throttled load from an unthrottled one.
+ * Instead, keep the viewport and user agent set up by Puppeteer, and apply our
+ * own throttling for real so that every metric is measured.
+ *
+ * @returns {Object} The Lighthouse flags.
+ */
+function getLighthouseFlags() {
+  const network = networkProfiles[options.network];
+  // Lighthouse takes throughput in kbps, and converts it to bytes/s.
+  const toKbps = (bytesPerSecond) => (bytesPerSecond * 8) / 1024;
+
+  return {
+    throttlingMethod: "devtools",
+    throttling: {
+      requestLatencyMs: network ? network.latency : 0,
+      downloadThroughputKbps: network ? toKbps(network.download) : 0,
+      uploadThroughputKbps: network ? toKbps(network.upload) : 0,
+      cpuSlowdownMultiplier: options.cpu_slowdown || 1,
+    },
+    formFactor: "desktop",
+    screenEmulation: { disabled: true },
+    emulatedUserAgent: false,
+  };
+}
+
+/**
  * Loads a page in Puppeteer and takes several measurements with Lighthouse.
  *
  * @param {String} url The URL to load.
@@ -152,7 +182,10 @@ async function loadAndMeasureWithLighthouse(url) {
   const browser = await initBrowser();
   const { page } = await initPage(browser);
   const { UserFlow } = await import("lighthouse/core/user-flow.js");
-  const flow = new UserFlow(page, { name: "Navigation" });
+  const flow = new UserFlow(page, {
+    name: "Navigation",
+    flags: getLighthouseFlags(),
+  });
 
   try {
     await flow.navigate(url);
@@ -426,7 +459,7 @@ async function performMeasurementSet(timingSet, versionString, url) {
       alias: "n",
       type: "string",
       describe: "The network throttling to apply.\n" +
-			"Throttling can't be combined with `ttfb` or Lighthouse.\n" +
+			"Throttling can't be combined with `ttfb`.\n" +
 			`Profiles:
 			- none: No throttling
 			- fast-4g: 8.1 Mbps down, 1.35 Mbps up, 165ms latency (DevTools "Fast 4G")
@@ -471,12 +504,6 @@ async function performMeasurementSet(timingSet, versionString, url) {
       choices: ["ttfb", "fp", "fcp", "dcl", "load", "lcp", "cls", "tti", "tbt"],
     })
     .check((argv) => {
-      if (argv.lighthouse && argv.network !== "none") {
-        throw new Error(
-          "Network throttling is only available when measuring directly. Lighthouse applies its own."
-        );
-      }
-
       if (argv.metric === "ttfb" && argv.network !== "none") {
         throw new Error(
           "The `ttfb` metric can't be combined with network throttling, due to limitations in the Chrome throttling implementation"

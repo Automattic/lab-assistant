@@ -57,7 +57,7 @@ Options:
   -c, --cpu_slowdown  The CPU slowdown throttling to apply (may help achieve
                       more stable results in CPU-heavy pages).          [number]
   -n, --network       The network throttling to apply.
-                      Throttling can't be combined with `ttfb` or Lighthouse.
+                      Throttling can't be combined with `ttfb`.
                       Profiles:
                       - none: No throttling
                       - fast-4g: 8.1 Mbps down, 1.35 Mbps up, 165ms latency

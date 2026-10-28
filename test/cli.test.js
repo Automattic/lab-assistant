@@ -52,7 +52,9 @@ test("rejects unknown network profiles", () => {
   assert.match(result.stderr, /Argument: network, Given: "5g"/);
 });
 
-test("rejects network throttling in Lighthouse mode", () => {
+test("accepts network throttling in Lighthouse mode", () => {
+  // An invalid repeat value stops the run once options are validated, so that
+  // no browser is launched.
   const result = spawnSync(
     process.execPath,
     [
@@ -60,6 +62,8 @@ test("rejects network throttling in Lighthouse mode", () => {
       "--lighthouse",
       "--network",
       "legacy",
+      "--repeat",
+      "1",
       "https://example.com",
       "https://example.com",
     ],
@@ -69,7 +73,29 @@ test("rejects network throttling in Lighthouse mode", () => {
   );
 
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /Network throttling is only available when measuring directly/);
+  assert.match(result.stderr, /repeat must be an integer of at least 2/);
+});
+
+test("rejects network throttling for the ttfb metric in Lighthouse mode", () => {
+  const result = spawnSync(
+    process.execPath,
+    [
+      cliPath,
+      "--lighthouse",
+      "--metric",
+      "ttfb",
+      "--network",
+      "slow-4g",
+      "https://example.com",
+      "https://example.com",
+    ],
+    {
+      encoding: "utf8",
+    }
+  );
+
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /`ttfb` metric can't be combined with network throttling/);
 });
 
 test("rejects network throttling for the ttfb metric", () => {
