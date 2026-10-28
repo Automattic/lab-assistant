@@ -5,7 +5,7 @@ Unreleased
 - UPDATE: Update dependencies (Puppeteer 25, Lighthouse 13, yargs 18).
 - UPDATE: Validate that `--repeat` is at least 2 and `--throwaway` is non-negative.
 - NEW: Add automated tests (`npm test`).
-- NEW: Add `--network` option to choose a network throttling profile. Throttling isn't available for the `ttfb` metric or in Lighthouse mode.
+- NEW: Add `--network` option to choose a network throttling profile. Throttling isn't available for the `ttfb` metric.
 - UPDATE: Network throttling is now off by default. Use `--network legacy` for the previous behaviour.
 - NEW: Add `--wait` and `--wait_extra` options to choose how long to wait before taking measurements, which helps capture late LCP and layout shifts (direct measuring only).
 - BUGFIX: Wait for the viewport to be set and the browser to close between measurements.
@@ -19,7 +19,8 @@ Unreleased
 - UPDATE: Report the size of a change as a speedup or slowdown factor instead of "% faster" / "% slower".
 - UPDATE: Describe CLS and TBT changes in terms of layout shift and blocking time, as an absolute difference between means.
 - UPDATE: Minor wording changes for clarity.
-- UPDATE: Lighthouse mode now measures uses DevTools throttling instead of simulated throttling.
+- UPDATE: Lighthouse mode now uses DevTools throttling instead of simulated throttling.
+- NEW: Add `--screen` option to choose the emulated screen, from a set of profiles or a custom size, in both direct and Lighthouse modes. The default is now Lighthouse's desktop size (1350x940) instead of 1920x1200.
 
 0.2.0
 =====
