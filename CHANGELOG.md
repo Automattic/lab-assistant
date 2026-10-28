@@ -1,5 +1,10 @@
+0.3.1
+=====
+
+- BUGFIX: Only publish the files needed to run `lab-assistant`, leaving out tests and local configuration files.
+
 0.3.0
-==========
+=====
 
 - UPDATE: Require Node.js 22.19 or newer.
 - UPDATE: Update dependencies (Puppeteer 25, Lighthouse 13, yargs 18).
