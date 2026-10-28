@@ -1,4 +1,4 @@
-Unreleased
+0.3.0
 ==========
 
 - UPDATE: Require Node.js 22.19 or newer.
