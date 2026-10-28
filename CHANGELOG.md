@@ -19,6 +19,7 @@ Unreleased
 - UPDATE: Report the size of a change as a speedup or slowdown factor instead of "% faster" / "% slower".
 - UPDATE: Describe CLS and TBT changes in terms of layout shift and blocking time, as an absolute difference between means.
 - UPDATE: Minor wording changes for clarity.
+- UPDATE: Lighthouse mode now measures uses DevTools throttling instead of simulated throttling.
 
 0.2.0
 =====
