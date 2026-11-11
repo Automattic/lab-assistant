@@ -89,6 +89,10 @@ async function initPage(browser) {
 
   await page.setCacheEnabled(false);
 
+  // Throttling only applies to the page, so anything answered by a service
+  // worker would skip it. Send the page's requests straight to the network.
+  await page.setBypassServiceWorker(true);
+
   return { page, client };
 }
 

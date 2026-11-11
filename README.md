@@ -103,6 +103,19 @@ Options:
                                                         "tbt"] [default: "load"]
 ```
 
+### Service workers
+
+`lab-assistant` loads every page in a fresh browser, so it always measures a
+first visit. A site's service worker can still register, install and take
+control of the page during that visit, but the page's requests bypass it and go
+straight to the network.
+
+This is because throttling (`--network` and `--cpu_slowdown`) only applies to
+the page. Requests answered by a service worker would skip it, making
+measurements depend on how early in the load the worker happened to take
+control. For the same reason, a worker's own requests, such as precaching
+during install, aren't throttled.
+
 ## Testing
 
 ```
@@ -110,6 +123,8 @@ npm test
 npm run test:cli
 npm audit --audit-level=low
 ```
+
+`npm test` launches a browser for some of the tests.
 
 ## License
 

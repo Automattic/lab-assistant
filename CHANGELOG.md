@@ -1,3 +1,8 @@
+Unreleased
+==========
+
+- BUGFIX: Bypass service workers for the page's requests, in both direct and Lighthouse modes. Throttling only applies to the page, so requests answered by a service worker that took control during the load skipped it. This could lead to inconsistent results.
+
 0.3.1
 =====
 
