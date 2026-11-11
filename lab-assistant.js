@@ -129,25 +129,6 @@ function handleMissingMetric(url) {
 }
 
 /**
- * Loads a page in Puppeteer, without doing anything with it.
- * Used for throwaway requests that help improve result consistency.
- *
- * @param {String} url The URL to load.
- */
-async function load(url) {
-  const browser = await initBrowser();
-  const { page } = await initPage(browser);
-
-  try {
-    await page.goto(url);
-  } catch (e) {
-    handleFetchError(e);
-  }
-
-  await teardown(browser);
-}
-
-/**
  * Returns the Lighthouse settings for measuring with the same conditions as
  * direct measuring.
  *
@@ -307,6 +288,14 @@ async function loadAndMeasureDirectly(url) {
   };
 }
 
+/**
+ * Loads a page in Puppeteer and takes several measurements, either directly or
+ * with Lighthouse.
+ *
+ * @param {String} url The URL to load.
+ *
+ * @returns {Metrics} An object with multiple performance timings.
+ */
 async function loadAndMeasure(url) {
   if (options.lighthouse) {
     return loadAndMeasureWithLighthouse(url);
@@ -365,8 +354,10 @@ async function performMeasurementSet(timingSet, versionString, url) {
   const progress = new Progress.Bar({}, Progress.Presets.shades_classic);
   progress.start(options.repeat, 0);
 
+  // Throwaway visits help improve result consistency. They're the same as the
+  // measured ones in every way, waiting included, with the results discarded.
   for (let i = 0; i < options.throwaway; i++) {
-    await load(url);
+    await loadAndMeasure(url);
   }
 
   for (let i = 0; i < options.repeat; i++) {
